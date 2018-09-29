@@ -17,8 +17,7 @@ class Endpoint<P, T> {
   responseOverride: ?T
   errorOverride: ?Error
 
-  constructor (name: string, mapParamsToUrl: MapParamsToUrlType<P>, mapResponse: MapResponseType<P, T>,
-    responseOverride: ?T, errorOverride: ?Error) {
+  constructor (name: string, mapParamsToUrl: MapParamsToUrlType<P>, mapResponse: MapResponseType<P, T>, responseOverride: ?T, errorOverride: ?Error) {
     this.mapParamsToUrl = mapParamsToUrl
     this.mapResponse = mapResponse
     this.responseOverride = responseOverride
@@ -30,7 +29,7 @@ class Endpoint<P, T> {
     return this._stateName
   }
 
-  async loadData (params: P): Promise<Payload<T>> {
+  async _loadData (params: P): Promise<Payload<T>> {
     let formattedUrl
     try {
       const responseOverride = this.responseOverride
@@ -42,11 +41,11 @@ class Endpoint<P, T> {
         return new Payload(false, formattedUrl, null, errorOverride)
       }
       if (responseOverride) {
-        const data = this.mapResponse(responseOverride, params)
+        const data = responseOverride
         return new Payload(false, formattedUrl, data, null)
       }
 
-      return await this.fetchData(formattedUrl, params)
+      return await this._fetchData(formattedUrl, params)
     } catch (e) {
       let error
       if (e instanceof LoadingError || e instanceof ParamMissingError || e instanceof MappingError) {
@@ -60,14 +59,14 @@ class Endpoint<P, T> {
     }
   }
 
-  async fetchData (formattedUrl: string, params: P): Promise<Payload<T>> {
+  async _fetchData (formattedUrl: string, params: P): Promise<Payload<T>> {
     const response = await fetch(formattedUrl)
     if (!response.ok) {
       throw new LoadingError({endpointName: this.stateName, message: `${response.status}`})
     }
     try {
       const json = await response.json()
-      const fetchedData = this.mapResponse(json, params)
+      const fetchedData = json
       return new Payload(false, formattedUrl, fetchedData, null)
     } catch (e) {
       throw (e instanceof MappingError) ? e : new MappingError(this.stateName, e.message)

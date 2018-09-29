@@ -1,14 +1,25 @@
+// @flow
+
 import * as React from 'react'
 import logo from '../assets/integreat-app-logo.png'
 import styled from 'styled-components'
 import HeaderButtons, { HeaderButton, Item } from 'react-navigation-header-buttons'
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-import { StyleSheet } from 'react-native'
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
+import type { NavigationScene, NavigationScreenProp } from 'react-navigation'
+import type { ThemeType } from 'modules/theme/constants/theme'
+import HeaderBackButton from 'react-navigation-stack/dist/views/Header/HeaderBackButton'
+import { SearchBar } from 'react-native-elements'
 
 const Horizonal = styled.View`
   flex:1;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
+`
+
+const HorizonalLeft = styled.View`
+  flex:1;
+  flex-direction: row;
   align-items: center;
 `
 
@@ -25,47 +36,121 @@ const Title = styled.Text`
 `
 
 const BoxShadow = styled.View`
-  background-color: #fafafa;
-  height: 60px;
+  background-color: ${props => props.theme.colors.backgroundAccentColor};
+  height: ${props => props.theme.dimensions.headerHeight};
 `
 
 const MaterialHeaderButton = props => (
-  <HeaderButton {...props} IconComponent={MaterialIcons} iconSize={23} color='black' />
+  <HeaderButton {...props} IconComponent={MaterialIcon} iconSize={23} color='black' />
 )
 
-export const MaterialHeaderButtons = props => {
+const MaterialHeaderButtons = props => {
   return (
     <HeaderButtons
       HeaderButtonComponent={MaterialHeaderButton}
-      OverflowIcon={<MaterialIcons name='more-vert' size={23} color='black' />}
+      OverflowIcon={<MaterialIcon name='more-vert' size={23} color='black' />}
       {...props}
     />
   )
 }
 
-const styles = StyleSheet.create({
-  headerButtons: {
-    alignSelf: 'flex-end'
+const ThemedSearchBar = styled(SearchBar).attrs({
+  containerStyle: props => ({
+    flexGrow: 1,
+    backgroundColor: props.theme.colors.backgroundAccentColor,
+    borderTopColor: props.theme.colors.backgroundAccentColor,
+    borderBottomColor: props.theme.colors.backgroundAccentColor
+  }),
+  inputContainerStyle: props => ({
+    backgroundColor: props.theme.colors.backgroundColor
+  }),
+  inputStyle: props => ({
+    backgroundColor: props.theme.colors.backgroundColor
+  })
+})``
+
+type PropsType = {
+  scene: NavigationScene,
+  scenes: Array<NavigationScene>,
+  theme: ThemeType
+}
+
+type StateType = {
+  searchActive: boolean
+}
+
+class Header extends React.PureComponent<PropsType, StateType> {
+  constructor () {
+    super()
+    this.state = {searchActive: false}
   }
-})
 
-const Header = props => {
-  const {options} = props.scene.descriptor
-  const headerTitle = options.headerTitle
+  canGoBackInStack (): boolean {
+    return !!this.getLastSceneInStack()
+  }
 
-  return (
-    <BoxShadow>
-      <Horizonal>
-        <Logo source={logo} />
-        <Title>{headerTitle}</Title>
-        <MaterialHeaderButtons>
-          <Item title='add' iconName='search' onPress={() => console.warn('add')} />
-          <Item title='edit' iconName='edit' onPress={() => console.warn('edit')} />
-          <Item title='asdf' show='never' onPress={() => console.warn('edit')} />
-        </MaterialHeaderButtons>
-      </Horizonal>
-    </BoxShadow>
-  )
+  getLastSceneInStack (): NavigationScene | void {
+    return this.props.scenes.find((s: NavigationScene) => s.index === this.props.scene.index - 1)
+  }
+
+  getDescriptor (): { [key: string]: any } {
+    // $FlowFixMe
+    return this.props.scene.descriptor
+  }
+
+  getNavigation (): NavigationScreenProp<*> {
+    return this.getDescriptor().navigation
+  }
+
+  goBackInStack = () => {
+    this.getNavigation().goBack(this.getDescriptor().key)
+  }
+
+  showSearchBar = () => {
+    this.setState(state => ({...state, searchActive: true}))
+  }
+
+  closeSearchBar = () => {
+    this.setState(state => ({...state, searchActive: false}))
+  }
+
+  goToLanding = () => {
+    this.getNavigation().navigate('Landing')
+  }
+
+  goToLanguageChange = () => {
+    this.getNavigation().navigate('ChangeLanguageModal')
+  }
+
+  render () {
+    if (this.state.searchActive) {
+      return <BoxShadow theme={this.props.theme}><HorizonalLeft>
+        <HeaderBackButton onPress={this.closeSearchBar} />
+        <ThemedSearchBar />
+      </HorizonalLeft>
+      </BoxShadow>
+    }
+
+    const headerTitle = this.getDescriptor().headerTitle || ''
+
+    return (
+      <BoxShadow theme={this.props.theme}>
+        <Horizonal>
+          <HorizonalLeft>
+            {this.canGoBackInStack() && <HeaderBackButton onPress={this.goBackInStack} />}
+            <Logo source={logo} />
+            <Title>{headerTitle}</Title>
+          </HorizonalLeft>
+          <MaterialHeaderButtons>
+            <Item title='Search' iconName='search' onPress={this.showSearchBar} />
+            <Item title='Change Language' iconName='language' onPress={this.goToLanguageChange} />
+            <Item title='Change Location' iconName='edit-location' onPress={this.goToLanding} />
+            <Item title='Settings' show='never' />
+          </MaterialHeaderButtons>
+        </Horizonal>
+      </BoxShadow>
+    )
+  }
 }
 
 export default Header

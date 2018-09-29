@@ -1,36 +1,113 @@
 // @flow
 
 import type { Store } from 'redux'
-import { applyMiddleware, combineReducers, compose, createStore } from 'redux'
+import { applyMiddleware, createStore } from 'redux'
 import { createLogger } from 'redux-logger'
+import { AsyncStorage } from 'react-native'
 
-import { languageReducer, uiDirectionReducer } from '../i18n/reducers'
+import { languageReducer, uiDirectionReducer } from 'modules/i18n/reducers'
 import toggleDarkModeReducer from '../theme/reducers'
-import Payload from '../endpoint/Payload'
+import {
+  checkInternetConnection,
+  createNetworkMiddleware,
+  networkEventsListenerSaga,
+  offlineActionTypes,
+  reducer as reactNativeOfflineReducer
+} from 'react-native-offline'
+import type { Saga } from 'redux-saga'
+import createSagaMiddleware from 'redux-saga'
+import { all, fork } from 'redux-saga/effects'
+import { persistCombineReducers, persistStore } from 'redux-persist'
+import type { PersistConfig, Persistor } from 'redux-persist/src/types'
+import type { StateType } from './StateType'
+import type { StoreActionType } from './StoreActionType'
+import fetchCities from '../endpoint/sagas/fetchCities'
+import fetchCategories from '../endpoint/sagas/fetchCategories'
+import hardSet from 'redux-persist/lib/stateReconciler/hardSet'
+import categoriesReducer from '../endpoint/reducers/categoriesReducer'
+import fileCacheReducer from '../endpoint/reducers/fileCacheReducer'
+import citiesReducer from '../endpoint/reducers/cititesReducer'
+import languagesReducer from '../endpoint/reducers/languagesReducer'
+import currentCityReducer from '../../routes/categories/reducers/currentCityReducer'
 
-export type ActionType<T> = { type: string, payload: Payload<T> }
+function * rootSaga (): Saga<void> {
+  yield all([
+    fork(fetchCities),
+    fork(fetchCategories),
+    fork(networkEventsListenerSaga, {})
+  ])
+}
 
-// todo: Change type to correct State type,
-// https://blog.callstack.io/type-checking-react-and-redux-thunk-with-flow-part-2-206ce5f6e705
-const createReduxStore = (initialState: {} = {}): Store<any, any> => {
-  /**
-   * The middlewares of this app, add additional middlewares here
-   */
-  const middlewares = []
-
-  if (__DEV__) {
-    middlewares.push(createLogger()) // Logs all state changes in console
+const createReduxStore = (callback: () => void, persist: boolean = false): { store: Store<StateType, StoreActionType>, persistor: Persistor } => {
+  if (!persist) {
+    AsyncStorage.clear()
   }
 
-  const rootReducer = combineReducers({
+  const sagaMiddleware = createSagaMiddleware()
+
+  const initialState: StateType = {
+    uiDirection: 'ltr',
+    language: 'en',
+    currentCity: null,
+    darkMode: false,
+
+    cities: {json: null, error: null},
+    categories: {},
+    languages: {},
+    fileCache: {},
+
+    network: {isConnected: false, actionQueue: []}
+  }
+
+  const persistConfig: PersistConfig = {
+    version: 1,
+    key: 'root',
+    storage: AsyncStorage,
+    stateReconciler: hardSet,
+    whitelist: persist ? ['cities', 'categories', 'network'] : []
+  }
+
+  // Create this reducer only once. It is not pure!
+  const persitedReducer = persistCombineReducers(persistConfig, {
     uiDirection: uiDirectionReducer,
     language: languageReducer,
-    darkMode: toggleDarkModeReducer
+    currentCity: currentCityReducer,
+    darkMode: toggleDarkModeReducer,
+
+    cities: citiesReducer,
+    categories: categoriesReducer,
+    languages: languagesReducer,
+    fileCache: fileCacheReducer,
+
+    network: reactNativeOfflineReducer
   })
 
-  const enhancers = compose(applyMiddleware(...middlewares))
+  const rootReducer = (state, action) => {
+    if (!state) {
+      return initialState
+    }
+    return persitedReducer(state, action)
+  }
 
-  return createStore(rootReducer, initialState, enhancers)
+  const middleware = applyMiddleware(createNetworkMiddleware(), sagaMiddleware, createLogger())
+
+  const store = createStore(rootReducer, initialState, middleware)
+
+  const persistor = persistStore(
+    store,
+    undefined,
+    async () => {
+      const isConnected: boolean = await checkInternetConnection()
+      store.dispatch({
+        type: offlineActionTypes.CONNECTION_CHANGE,
+        payload: isConnected
+      })
+      sagaMiddleware.run(rootSaga)
+      callback()
+    }
+  )
+
+  return {store, persistor}
 }
 
 export default createReduxStore

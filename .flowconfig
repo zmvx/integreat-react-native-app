@@ -17,7 +17,10 @@
 .*/Libraries/polyfills/.*
 
 ; Ignore metro
-.*/node_modules/metro/.*
+.*/node_modules/metro/.*;
+
+ Ignore react-navigation-header-buttons
+.*/node_modules/react-navigation-header-buttons/.*
 
 [include]
 
@@ -66,5 +69,7 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(<VERSION>\\)? *\\(site=[a-z,_]*
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 
+esproposal.optional_chaining=enable
+
 [version]
-^0.75.0
+^0.81.0
