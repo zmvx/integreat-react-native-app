@@ -5,15 +5,16 @@ import { Dimensions, Linking, Text } from 'react-native'
 import { WebView, type WebViewUrlOverrideEvent } from 'react-native-webview'
 import styled from 'styled-components'
 import type { ThemeType } from '../../theme/constants/theme'
-import RNFetchblob from 'rn-fetch-blob'
-import { URL_PREFIX } from '../../platform/constants/webview'
+import { OFFLINE_CACHE_PATH, URL_PREFIX } from '../../platform/constants/webview'
 import type { WebViewNativeEvent } from 'react-native-webview/js/WebViewTypes'
 import { type NavigationScreenProp, withNavigation } from 'react-navigation'
 import renderHtml from '../renderHtml'
 
+const HEADER_HEIGHT = 60
+
 const WebContainer = styled.View`
   flex: 1;
-  height: ${props => Dimensions.get('screen').height - 60}
+  height: ${props => Dimensions.get('screen').height - HEADER_HEIGHT}
 `
 type PropType = {
   title: string,
@@ -37,7 +38,7 @@ class Page extends React.Component<PropType> {
   // For iOS
   onShouldStartLoadWithRequest = (event: WebViewNativeEvent) => {
     const url = event.url
-    if (url.endsWith('/Documents')) {
+    if (url === URL_PREFIX + OFFLINE_CACHE_PATH) {
       return true
     }
 
@@ -61,7 +62,7 @@ class Page extends React.Component<PropType> {
         <WebContainer theme={this.props.theme}>
           <WebView
             source={{
-              baseUrl: URL_PREFIX + RNFetchblob.fs.dirs.CacheDir,
+              baseUrl: URL_PREFIX + OFFLINE_CACHE_PATH,
               html: renderHtml(this.props.content, this.props.files)
             }}
             allowFileAccess // Needed by android to access file:// urls

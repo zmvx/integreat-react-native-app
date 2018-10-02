@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "start": "react-native start",
+    "bundle": "react-native bundle --entry-file index.js --bundle-output bundle.js",
     "start:reset": "react-native start --reset-cache",
     "android": "react-native run-android",
+    "android:release": "yarn android --variant=release",
     "ios": "react-native run-ios",
-    "test": "jest --config jest.config.json",
+    "test": "jest --config ./jest.config.json",
     "lint": "eslint .",
     "flow:check-now": "flow check",
     "flow:install-types": "flow-typed install --ignoreDeps dev",
@@ -27,8 +29,8 @@
     "react-i18next": "^7.12.0",
     "react-native": "0.57.0",
     "react-native-elements": "1.0.0-beta5",
+    "react-native-fast-image": "^5.0.10",
     "react-native-image-zoom-viewer": "^2.2.18",
-    "react-native-maps": "^0.21.0",
     "react-native-offline": "^3.12.0",
     "react-native-progress": "^3.5.0",
     "react-native-render-html": "^3.10.0",
@@ -44,6 +46,7 @@
     "redux-logger": "^3.0.6",
     "redux-persist": "^5.10.0",
     "redux-saga": "^0.16.0",
+    "reselect": "^4.0.0",
     "rn-fetch-blob": "^0.10.13",
     "styled-components": "^3.4.6"
   },
@@ -77,6 +80,7 @@
     "jest-react-native": "^18.0.0",
     "lolex": "^2.7.4",
     "metro-react-native-babel-preset": "^0.45.0",
-    "react-test-renderer": "^16.5.1"
+    "react-test-renderer": "^16.5.1",
+    "redux-devtools-extension": "^2.13.5"
   }
 }
