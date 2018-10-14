@@ -28,7 +28,7 @@ import categoriesReducer from '../endpoint/reducers/categoriesReducer'
 import fileCacheReducer from '../endpoint/reducers/fileCacheReducer'
 import citiesReducer from '../endpoint/reducers/cititesReducer'
 import languagesReducer from '../endpoint/reducers/languagesReducer'
-import currentCityReducer from '../../routes/categories/reducers/currentCityReducer'
+import currentCityReducer from '../categories/reducers/currentCityReducer'
 import { composeWithDevTools } from 'redux-devtools-extension'
 
 function * rootSaga (): Saga<void> {
@@ -39,11 +39,7 @@ function * rootSaga (): Saga<void> {
   ])
 }
 
-const createReduxStore = (callback: () => void, persist: boolean = false): { store: Store<StateType, StoreActionType>, persistor: Persistor } => {
-  if (!persist) {
-    AsyncStorage.clear()
-  }
-
+const createReduxStore = (callback: () => void): { store: Store<StateType, StoreActionType>, persistor: Persistor } => {
   const sagaMiddleware = createSagaMiddleware()
 
   const initialState: StateType = {
@@ -64,8 +60,7 @@ const createReduxStore = (callback: () => void, persist: boolean = false): { sto
     version: 1,
     key: 'root',
     storage: AsyncStorage,
-    stateReconciler: hardSet,
-    whitelist: persist ? ['cities', 'categories', 'network'] : []
+    stateReconciler: hardSet
   }
 
   // Create this reducer only once. It is not pure!

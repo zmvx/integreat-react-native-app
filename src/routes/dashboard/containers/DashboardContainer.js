@@ -7,8 +7,11 @@ import Dashboard from '../components/Dashboard'
 import toggleDarkMode from 'modules/theme/actions/toggleDarkMode'
 import { offlineActionTypes } from 'react-native-offline'
 import type { StateType } from '../../../modules/app/StateType'
-import citiesEndpoint from '../../../modules/endpoint/endpoints/cities'
 import CityModel from '../../../modules/endpoint/models/CityModel'
+import { withTheme } from 'styled-components'
+import CategoriesMapModel from '../../../modules/endpoint/models/CategoriesMapModel'
+import categoriesSelector from '../../../modules/categories/selectors/categoriesSelector'
+import citiesSelector from '../../../modules/categories/selectors/citiesSelector'
 
 const mapDispatchToProps = (dispatch: Dispatch<*>) => ({
   toggleTheme: () => dispatch(toggleDarkMode()),
@@ -36,15 +39,15 @@ const mapDispatchToProps = (dispatch: Dispatch<*>) => ({
 })
 
 const mapStateToProps = (state: StateType, ownProps) => {
-  const targetCity: CityModel = ownProps.navigation.getParam('cityModel')
-
   const language = state.language
   const cities = state.cities.json
+
+  const targetCity: CityModel = ownProps.navigation.getParam('cityModel')
+  const targetPath: string = ownProps.navigation.getParam('path') || `/${targetCity.code}/${language}`
 
   const notReadyProps = {
     cityModel: targetCity,
     language: language,
-    categoriesLoaded: false,
     cities
   }
 
@@ -70,13 +73,25 @@ const mapStateToProps = (state: StateType, ownProps) => {
     return notReadyProps
   }
 
+  const navigateToCategories = (path: string) => {
+    const params = {path, city: targetCity.code}
+    if (ownProps.navigation.push) {
+      ownProps.navigation.push('Categories', params)
+    }
+  }
+
+  const categoriesMap: CategoriesMapModel = categoriesSelector(state, {language, targetCity: targetCity.code})
   return {
     cityModel: targetCity,
     language: language,
-    cities: citiesEndpoint.mapResponse(cities),
-    categoriesLoaded: true,
+    cities: citiesSelector(state),
+    navigateToCategories,
+    path: targetPath,
+    categories: categoriesMap,
     files: fileCache.files
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Dashboard)
+// $FlowFixMe
+const themed = withTheme(Dashboard)
+export default connect(mapStateToProps, mapDispatchToProps)(themed)
