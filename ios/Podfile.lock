@@ -2,7 +2,7 @@ PODS:
   - FLAnimatedImage (1.0.12)
   - React (0.57.0):
     - React/Core (= 0.57.0)
-  - react-native-fast-image (5.0.10):
+  - react-native-fast-image (5.0.11):
     - FLAnimatedImage
     - React
     - SDWebImage/Core
@@ -121,6 +121,6 @@ SPEC CHECKSUMS:
   SDWebImage: 624d6e296c69b244bcede364c72ae0430ac14681
   yoga: b1ce48b6cf950b98deae82838f5173ea7cf89e85
 
-PODFILE CHECKSUM: 8a0293484c6fd8d0d597412608e4c8df052b5643
+PODFILE CHECKSUM: 1196b52bbdaaf92ea4eaa76cc8e914f86beaa4b5
 
 COCOAPODS: 1.5.3
