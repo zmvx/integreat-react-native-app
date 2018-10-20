@@ -12,6 +12,7 @@ import PDFViewModal from '../../../routes/pdf/components/PDFViewModal'
 import ImageViewModal from '../../../routes/image/components/ImageViewModal'
 import ChangeLanguageModalContainer from '../../../routes/language/containers/ChangeLanguageModalContainer'
 import MapViewModal from '../../../routes/map/components/MapViewModal'
+import SettingsViewModal from '../../../routes/settings/components/SettingsViewModal'
 
 const LayoutedDashboardContainer = withLayout(DashboardContainer)
 const LayoutedCategoriesContainer = withLayout(CategoriesContainer)
@@ -46,7 +47,8 @@ export default createStackNavigator(
     'ChangeLanguageModal': ChangeLanguageModalContainer,
     'PDFViewModal': PDFViewModal,
     'MapViewModal': MapViewModal,
-    'ImageViewModal': ImageViewModal
+    'ImageViewModal': ImageViewModal,
+    'SettingsViewModal': SettingsViewModal
   },
   {
     mode: 'modal',
