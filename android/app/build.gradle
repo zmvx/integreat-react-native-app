@@ -150,6 +150,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-firebase')
     implementation (project(':react-native-fast-image')) {
         exclude group: "com.android.support"
     }

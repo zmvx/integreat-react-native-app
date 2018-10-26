@@ -35,13 +35,16 @@ target 'Integreat' do
   # PDF
   pod 'RNPDF', :path => '../node_modules/react-native-view-pdf'
   # fast-image
-  pod 'react-native-fast-image', :path => '../node_modules/react-native-fast-image'  
+  pod 'react-native-fast-image', :path => '../node_modules/react-native-fast-image'
   # web view
   pod 'react-native-webview', :path => '../node_modules/react-native-webview'
   # rn-fetch-blob
   pod 'rn-fetch-blob', :path => '../node_modules/rn-fetch-blob'
   # react-native-vector-icons
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+  pod 'Firebase/Core'
+  pod 'Firebase/Messaging'
+
 
   target 'IntegreatTests' do
     inherit! :search_paths
