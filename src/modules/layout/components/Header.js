@@ -122,6 +122,10 @@ class Header extends React.PureComponent<PropsType, StateType> {
     this.getNavigation().navigate('ChangeLanguageModal')
   }
 
+  goToSettings = () => {
+    this.getNavigation().navigate('SettingsViewModal')
+  }
+
   render () {
     if (this.state.searchActive) {
       return <BoxShadow theme={this.props.theme}><HorizonalLeft>
@@ -145,7 +149,7 @@ class Header extends React.PureComponent<PropsType, StateType> {
             <Item title='Search' iconName='search' onPress={this.showSearchBar} />
             <Item title='Change Language' iconName='language' onPress={this.goToLanguageChange} />
             <Item title='Change Location' iconName='edit-location' onPress={this.goToLanding} />
-            <Item title='Settings' show='never' onPress={console.warn} />
+            <Item title='Settings' show='never' onPress={this.goToSettings} />
           </MaterialHeaderButtons>
         </Horizonal>
       </BoxShadow>
