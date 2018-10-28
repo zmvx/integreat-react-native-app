@@ -1289,6 +1289,7 @@
 					"-ObjC",
 					"-lc++",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "de.integreat-app";
 				PRODUCT_NAME = Integreat;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -1313,6 +1314,7 @@
 					"-ObjC",
 					"-lc++",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "de.integreat-app";
 				PRODUCT_NAME = Integreat;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
