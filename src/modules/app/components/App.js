@@ -12,6 +12,8 @@ import type { Store } from 'redux'
 import type { StateType } from '../StateType'
 import type { StoreActionType } from '../StoreActionType'
 import Navigator from './Navigator'
+import { AsyncStorage } from 'react-native'
+import firebase from 'react-native-firebase'
 
 class App extends React.Component<{}, { waitingForStore: boolean }> {
   store: Store<StateType, StoreActionType>
@@ -21,6 +23,41 @@ class App extends React.Component<{}, { waitingForStore: boolean }> {
     this.state = {waitingForStore: true}
     const storeConfig = createReduxStore(() => { this.setState({waitingForStore: false}) })
     this.store = storeConfig.store
+  }
+
+  async componentDidMount() {
+    this.checkPermission();
+  }
+
+  async checkPermission() {
+    const enabled = await firebase.messaging().hasPermission();
+    if (enabled) {
+      this.getToken();
+    } else {
+      this.requestPermission();
+    }
+  }
+
+  async getToken() {
+    let fcmToken = await AsyncStorage.getItem('fcmToken', value);
+    if (!fcmToken) {
+      fcmToken = await firebase.messaging().getToken();
+      if (fcmToken) {
+        // user has a device token
+        await AsyncStorage.setItem('fcmToken', fcmToken);
+      }
+    }
+  }
+
+  async requestPermission() {
+    try {
+      await firebase.messaging().requestPermission();
+      // User has authorised
+      this.getToken();
+    } catch (error) {
+      // User has rejected permissions
+      console.log('permission rejected');
+    }
   }
 
   render () {
