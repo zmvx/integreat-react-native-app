@@ -41,6 +41,7 @@
     "react-native-vector-icons": "^5.0.0",
     "react-native-view-pdf": "^0.4.1",
     "react-native-webview": "https://github.com/maxammann/react-native-webview/#android-onShouldStartLoadWithRequest",
+    "react-native-yunolink": "^2.1.1",
     "react-navigation": "^2.14.2",
     "react-navigation-header-buttons": "^2.1.0",
     "react-redux": "^5.0.7",
